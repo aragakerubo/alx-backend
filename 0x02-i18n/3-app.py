@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Basic Flask app, Basic Babel setup, Get locale from request,
 Parameterize templates
