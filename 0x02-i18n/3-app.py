@@ -8,6 +8,7 @@ from flask import Flask, render_template, request
 from flask_babel import Babel, _
 from typing import List
 
+
 class Config:
     """Config app class"""
 
@@ -15,9 +16,11 @@ class Config:
     BABEL_DEFAULT_LOCALE: str = "en"
     BABEL_DEFAULT_TIMEZONE: str = "UTC"
 
+
 app = Flask(__name__)
 babel = Babel(app)
 app.config.from_object(Config)
+
 
 @babel.localeselector
 def get_locale() -> str:
