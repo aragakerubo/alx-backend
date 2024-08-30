@@ -34,7 +34,7 @@ def get_locale() -> str:
 @app.route("/")
 def index() -> str:
     """Return index page"""
-    return render_template("4-index.html")
+    return render_template("4-index.html", get_locale=get_locale)
 
 
 if __name__ == "__main__":
