@@ -2,12 +2,13 @@
 """
 Basic Flask app, Basic Babel setup, Get locale from request,
 Parameterize templates, Force locale with URL parameter,
-Mock logging in, Use user locale
+Mock logging in, Use user locale, Infer appropriate time zone
 """
 
 from flask import Flask, render_template, request, g
 from flask_babel import Babel, _
 from typing import List
+import pytz
 
 
 class Config:
@@ -59,6 +60,35 @@ def get_locale() -> str:
     return Config.BABEL_DEFAULT_LOCALE
 
 
+@babel.timezoneselector
+def get_timezone() -> str:
+    """Get timezone by priority:
+    1) URL parameter
+    2) User timezone from user settings
+    3) Default
+    """
+    # Priority 1: URL parameter
+    url_timezone = request.args.get("timezone")
+    if url_timezone:
+        try:
+            return pytz.timezone(url_timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            pass
+
+    # Priority 2: User timezone from user settings
+    user = getattr(g, "user", None)
+    if user:
+        user_timezone = user.get("timezone")
+        if user_timezone:
+            try:
+                return pytz.timezone(user_timezone)
+            except pytz.exceptions.UnknownTimeZoneError:
+                pass
+
+    # Priority 3: Default
+    return Config.BABEL_DEFAULT_TIMEZONE
+
+
 def get_user() -> dict:
     """Get user"""
     login_as = request.args.get("login_as")
@@ -77,7 +107,7 @@ def before_request() -> None:
 @app.route("/")
 def index() -> str:
     """Return index page"""
-    return render_template("6-index.html", get_locale=get_locale)
+    return render_template("7-index.html", get_locale=get_locale)
 
 
 if __name__ == "__main__":
