@@ -32,12 +32,31 @@ app.config.from_object(Config)
 
 @babel.localeselector
 def get_locale() -> str:
-    """Get locale from request"""
-    locale = request.args.get("locale")
-    if locale and locale in app.config["LANGUAGES"]:
-        return locale
-    return request.accept_languages.best_match(app.config["LANGUAGES"]) \
-        or Config.BABEL_DEFAULT_LOCALE
+    """Get locale by priority:
+    1) URL parameter
+    2) User locale from user settings
+    3) User locale from request header
+    4) Default
+    """
+    # Priority 1: URL parameter
+    url_locale = request.args.get("locale")
+    if url_locale and url_locale in Config.LANGUAGES:
+        return url_locale
+
+    # Priority 2: User locale from user settings
+    user = getattr(g, "user", None)
+    if user:
+        user_locale = user.get("locale")
+        if user_locale and user_locale in Config.LANGUAGES:
+            return user_locale
+
+    # Priority 3: User locale from request header
+    header_locale = request.accept_languages.best_match(Config.LANGUAGES)
+    if header_locale:
+        return header_locale
+
+    # Priority 4: Default
+    return Config.BABEL_DEFAULT_LOCALE
 
 
 def get_user() -> dict:
@@ -58,7 +77,7 @@ def before_request() -> None:
 @app.route("/")
 def index() -> str:
     """Return index page"""
-    return render_template("5-index.html", get_locale=get_locale)
+    return render_template("6-index.html", get_locale=get_locale)
 
 
 if __name__ == "__main__":
