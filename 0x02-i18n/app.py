@@ -112,12 +112,12 @@ def get_formatted_time() -> str:
 def before_request() -> None:
     """Get user"""
     g.user = get_user()
-    g.current_time = get_formatted_time()
 
 
 @app.route("/")
 def index() -> str:
     """Return index page"""
+    g.current_time = get_formatted_time()
     return render_template("index.html", get_locale=get_locale)
 
 
