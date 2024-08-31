@@ -72,7 +72,8 @@ def get_timezone() -> str:
     url_timezone = request.args.get("timezone")
     if url_timezone:
         try:
-            return pytz.timezone(url_timezone)
+            pytz.timezone(url_timezone)
+            return url_timezone
         except pytz.exceptions.UnknownTimeZoneError:
             pass
 
@@ -82,7 +83,8 @@ def get_timezone() -> str:
         user_timezone = user.get("timezone")
         if user_timezone:
             try:
-                return pytz.timezone(user_timezone)
+                pytz.timezone(user_timezone)
+                return user_timezone
             except pytz.exceptions.UnknownTimeZoneError:
                 pass
 
@@ -99,18 +101,18 @@ def get_user() -> dict:
     return None
 
 
+def get_formatted_time() -> str:
+    """Get formatted time"""
+    tz = pytz.timezone(get_timezone())
+    current_time = datetime.now(tz)
+    return format_datetime(current_time)
+
+
 @app.before_request
 def before_request() -> None:
     """Get user"""
     g.user = get_user()
-
-    # Get the current time in the inferred time zone
-    tz = pytz.timezone(get_timezone())
-    current_time = datetime.now(tz)
-
-    # Format the current time based on the locale
-    formatted_time = format_datetime(current_time)
-    g.current_time = formatted_time
+    g.current_time = get_formatted_time()
 
 
 @app.route("/")
