@@ -3,7 +3,7 @@
 import kue from "kue";
 import redis from "redis";
 
-const blacklisted = [4153518780, 4153518781];
+const blacklisted = ["4153518780", "4153518781"];
 
 const sendNotification = (phoneNumber, message, job, done) => {
     job.progress(0, 100);
@@ -26,13 +26,4 @@ const queue = kue.createQueue({
 
 queue.process("push_notification_code_2", 2, (job, done) => {
     sendNotification(job.data.phoneNumber, job.data.message, job, done);
-});
-
-queue.on("job complete", (id) => {
-    kue.Job.get(id, (err, job) => {
-        if (err) return;
-        job.remove((err) => {
-            if (err) throw err;
-        });
-    });
 });
