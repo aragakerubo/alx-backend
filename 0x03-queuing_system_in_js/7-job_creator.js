@@ -1,6 +1,5 @@
 // 8. Track progress and errors with Kue: Create the Job creator
 
-import e from "express";
 import kue from "kue";
 import redis from "redis";
 
